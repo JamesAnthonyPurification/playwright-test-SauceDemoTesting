@@ -1,0 +1,86 @@
+{
+  "users": {
+    "standard": {
+      "username": "standard_user",
+      "password": "secret_sauce"
+    },
+    "locked": {
+      "username": "locked_out_user",
+      "password": "secret_sauce"
+    },
+    "invalid": {
+      "username": "standard_user",
+      "password": "wrong_password"
+    },
+    "emptyUsername": {
+      "username": "",
+      "password": "secret_sauce"
+    },
+    "emptyPassword": {
+      "username": "standard_user",
+      "password": ""
+    },
+    "emptyAll": {
+      "username": "",
+      "password": ""
+    }
+  },
+  "products": {
+    "backpack": {
+      "name": "Sauce Labs Backpack",
+      "price": 29.99
+    },
+    "bikeLight": {
+      "name": "Sauce Labs Bike Light",
+      "price": 9.99
+    },
+    "boltTShirt": {
+      "name": "Sauce Labs Bolt T-Shirt",
+      "price": 15.99
+    },
+    "fleeceJacket": {
+      "name": "Sauce Labs Fleece Jacket",
+      "price": 49.99
+    },
+    "onesie": {
+      "name": "Sauce Labs Onesie",
+      "price": 7.99
+    },
+    "redTShirt": {
+      "name": "Test.allTheThings() T-Shirt (Red)",
+      "price": 15.99
+    }
+  },
+  "checkout": {
+    "valid": {
+      "firstName": "James",
+      "lastName": "Purification",
+      "postalCode": "1212"
+    },
+    "missingFirstName": {
+      "firstName": "",
+      "lastName": "Purification",
+      "postalCode": "1212"
+    },
+    "missingLastName": {
+      "firstName": "James",
+      "lastName": "",
+      "postalCode": "1212"
+    },
+    "missingPostalCode": {
+      "firstName": "James",
+      "lastName": "Purification",
+      "postalCode": ""
+    }
+  },
+  "errors": {
+    "lockedUser": "Epic sadface: Sorry, this user has been locked out.",
+    "invalidCredentials": "Epic sadface: Username and password do not match any user in this service",
+    "usernameRequired": "Epic sadface: Username is required",
+    "passwordRequired": "Epic sadface: Password is required",
+    "firstNameRequired": "Error: First Name is required",
+    "lastNameRequired": "Error: Last Name is required",
+    "postalCodeRequired": "Error: Postal Code is required"
+  }
+}
+

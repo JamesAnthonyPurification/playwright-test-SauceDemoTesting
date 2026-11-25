@@ -1,0 +1,32 @@
+{
+  "name": "playwright-test-saucedemo-testing",
+  "version": "1.0.0",
+  "description": "Playwright JavaScript end-to-end test automation framework for SauceDemo using the Page Object Model (POM) pattern with a live test report dashboard.",
+  "main": "server.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:login": "playwright test tests/login.spec.js",
+    "test:cart": "playwright test tests/cart.spec.js",
+    "test:checkout": "playwright test tests/checkout.spec.js",
+    "test:recorded": "playwright test tests/recorded.spec.js",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen https://www.saucedemo.com/",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "playwright",
+    "saucedemo",
+    "pom",
+    "page-object-model",
+    "e2e-testing",
+    "javascript"
+  ],
+  "author": "JamesAnthonyPurification",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}
+

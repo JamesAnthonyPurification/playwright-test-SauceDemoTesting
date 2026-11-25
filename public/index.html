@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SauceDemo Playwright POM Test Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div>
+        <span class="badge-tag">Playwright + JavaScript + POM</span>
+        <h1>SauceDemo Automation Test Suite</h1>
+        <p class="subtitle">
+          End-to-end automated testing for
+          <a href="https://www.saucedemo.com/" target="_blank" rel="noopener noreferrer">saucedemo.com</a>
+          using Page Object Model &amp; Playwright Test Hooks.
+        </p>
+      </div>
+      <div class="actions">
+        <a id="openReportBtn" class="btn btn-secondary" href="/report/" target="_blank" rel="noopener noreferrer">
+          Open Playwright HTML Report
+        </a>
+        <button id="runAllBtn" class="btn btn-primary" type="button">
+          Run All Tests Live
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="stats-grid" aria-label="Test summary">
+      <article class="stat-card">
+        <span class="stat-label">Total Tests</span>
+        <strong id="statTotal" class="stat-value">-</strong>
+      </article>
+      <article class="stat-card stat-pass">
+        <span class="stat-label">Passed</span>
+        <strong id="statPassed" class="stat-value">-</strong>
+      </article>
+      <article class="stat-card stat-fail">
+        <span class="stat-label">Failed</span>
+        <strong id="statFailed" class="stat-value">-</strong>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Duration</span>
+        <strong id="statDuration" class="stat-value">-</strong>
+      </article>
+    </section>
+
+    <section id="statusBanner" class="status-banner hidden" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <span id="statusText">Running Playwright tests in headless Chromium...</span>
+    </section>
+
+    <nav class="tabs" aria-label="Dashboard sections">
+      <button class="tab active" data-tab="results" type="button">Test Results</button>
+      <button class="tab" data-tab="architecture" type="button">POM Architecture</button>
+      <button class="tab" data-tab="hooks" type="button">Test Hooks Guide</button>
+      <button class="tab" data-tab="console" type="button">Runner Console</button>
+    </nav>
+
+    <section id="tab-results" class="tab-panel active">
+      <div class="panel-header">
+        <div>
+          <h2>Test Suites</h2>
+          <p id="lastRunMeta" class="muted">Loading latest test results...</p>
+        </div>
+        <div class="filter-bar">
+          <label for="specFilter" class="sr-only">Filter by spec file</label>
+          <select id="specFilter">
+            <option value="all">All Spec Files</option>
+          </select>
+          <button id="refreshBtn" class="btn btn-outline" type="button">Refresh</button>
+        </div>
+      </div>
+      <div id="suitesContainer" class="suites-list"></div>
+    </section>
+
+    <section id="tab-architecture" class="tab-panel">
+      <div class="info-grid">
+        <article class="info-card">
+          <h3>Page Object Model (<code>pages/</code>)</h3>
+          <p class="muted">
+            Every SauceDemo screen has its own JavaScript class that receives the Playwright
+            <code>page</code> object in its constructor, encapsulates element locators, and exposes
+            reusable methods.
+          </p>
+          <ul class="clean-list">
+            <li><strong>BasePage.js</strong> — Shared <code>visit()</code> and URL helper methods.</li>
+            <li><strong>LoginPage.js</strong> — Username, password, login button, error assertions, and <code>login()</code>.</li>
+            <li><strong>InventoryPage.js</strong> — Sorting (<code>az</code>, <code>za</code>, <code>lohi</code>, <code>hilo</code>), add/remove by name, cart badge count.</li>
+            <li><strong>InventoryItemPage.js</strong> — Product detail info, add/remove from detail view, back button.</li>
+            <li><strong>CartPage.js</strong> — Cart item listing, remove single or all items, continue shopping, checkout.</li>
+            <li><strong>CheckoutPage.js</strong> — Step 1 form validation, Step 2 subtotal/tax/total calculations, finish order.</li>
+            <li><strong>MenuComponent.js</strong> — Reusable sidebar component: open, close, All Items, Reset App State, Logout.</li>
+          </ul>
+        </article>
+
+        <article class="info-card">
+          <h3>Test Organization (<code>tests/</code> &amp; <code>fixtures/</code>)</h3>
+          <p class="muted">
+            Test files focus strictly on scenarios and assertions while reusing page class methods
+            and centralized JSON data.
+          </p>
+          <ul class="clean-list">
+            <li><strong>tests/recorded.spec.js</strong> — Preserved Playwright Codegen tests (TC01 Login &amp; TC02 Add Backpack).</li>
+            <li><strong>tests/login.spec.js</strong> — 7 authentication &amp; validation tests using all 4 lifecycle hooks.</li>
+            <li><strong>tests/inventory.spec.js</strong> — 6 sorting, cart badge, and add/remove tests.</li>
+            <li><strong>tests/inventoryItem.spec.js</strong> — 4 product detail view tests.</li>
+            <li><strong>tests/cart.spec.js</strong> — 5 shopping cart management &amp; navigation tests.</li>
+            <li><strong>tests/checkout.spec.js</strong> — 6 end-to-end checkout, pricing math, and form validation tests.</li>
+            <li><strong>tests/menu.spec.js</strong> — 4 sidebar menu, state reset, and logout tests.</li>
+            <li><strong>fixtures/testData.json</strong> — Users, products, checkout inputs, and expected error strings.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-hooks" class="tab-panel">
+      <div class="info-grid">
+        <article class="info-card">
+          <h3><code>test.beforeAll()</code> &amp; <code>test.afterAll()</code></h3>
+          <p class="muted">Run <strong>once per test file (per worker)</strong>.</p>
+          <p>
+            Used in <code>tests/login.spec.js</code> for shared setup that does not belong to a single
+            browser page: <code>beforeAll()</code> creates a Playwright <code>request</code> API context
+            to verify SauceDemo responds with HTTP 200, and <code>afterAll()</code> disposes that context
+            after all login tests complete.
+          </p>
+        </article>
+        <article class="info-card">
+          <h3><code>test.beforeEach()</code> &amp; <code>test.afterEach()</code></h3>
+          <p class="muted">Run <strong>before and after every individual test</strong>.</p>
+          <p>
+            <code>beforeEach()</code> initializes fresh Page Objects and navigates to the required
+            starting screen (for example, logging in and adding items before cart/checkout tests).
+            <code>afterEach()</code> in <code>tests/login.spec.js</code> attaches the failing URL to the
+            report whenever a test fails. Playwright automatically isolates and closes each test's browser context.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-console" class="tab-panel">
+      <div class="panel-header">
+        <h2>Live Test Runner Output</h2>
+        <span id="consoleExitCode" class="muted">Ready</span>
+      </div>
+      <pre id="consoleOutput" class="console-box">Click "Run All Tests Live" to execute Playwright headless Chromium on the server and view output here.</pre>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>SauceDemo Playwright Automation Framework</span>
+      <span>Built with JavaScript &amp; Page Object Model</span>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+

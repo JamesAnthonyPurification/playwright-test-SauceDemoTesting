@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: playwright-test-saucedemo-testing
+    runtime: docker
+    plan: free
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CI
+        value: "true"
+
