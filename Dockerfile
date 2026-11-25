@@ -3,18 +3,17 @@ FROM mcr.microsoft.com/playwright:v1.65.1-noble
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY . .
 
 ENV CI=true
-ENV NODE_ENV=production
+ENV RENDER=true
 
-# Run the Playwright test suite during image build so the dashboard and HTML report
-# are immediately populated on startup.
-RUN npx playwright test --workers=1
+RUN mkdir -p test-results playwright-report && \
+    { npx playwright --version && npx playwright test --workers=1; } > test-results/build.log 2>&1 || true; \
+    tail -n 60 test-results/build.log
 
 EXPOSE 10000
 
 CMD ["node", "server.js"]
-

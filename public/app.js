@@ -84,6 +84,7 @@ function renderSuites(suites) {
             <div class="suite-meta">
               <span class="pill ${badgeClass}">${badgeText}</span>
               <span class="muted">${formatDuration(suite.durationMs)}</span>
+              <button class="btn btn-outline btn-sm run-spec-btn" data-spec="${escapeHtml(suite.file)}" type="button">Run Suite</button>
             </div>
           </div>
           <table class="test-table">
@@ -92,6 +93,11 @@ function renderSuites(suites) {
         </article>`;
     })
     .join('');
+
+  suitesContainer.querySelectorAll('.run-spec-btn').forEach((btn) => {
+    btn.disabled = Boolean(latestData && latestData.runState && latestData.runState.isRunning);
+    btn.addEventListener('click', () => runTests(btn.dataset.spec));
+  });
 }
 
 function updateUI(data) {

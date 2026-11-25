@@ -151,6 +151,11 @@ h3 {
   background: var(--surface);
 }
 
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
 main {
   flex: 1;
   padding: 28px 20px 48px;

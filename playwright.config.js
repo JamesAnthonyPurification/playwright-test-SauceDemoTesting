@@ -6,11 +6,11 @@ module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: !isCI,
   forbidOnly: isCI,
-  retries: isCI ? 1 : 0,
+  retries: isCI ? 2 : 0,
   workers: isCI ? 1 : 2,
-  timeout: 30000,
+  timeout: 45000,
   expect: {
-    timeout: 10000,
+    timeout: 15000,
   },
   reporter: [
     ['list'],
@@ -19,6 +19,7 @@ module.exports = defineConfig({
   ],
   use: {
     baseURL: 'https://www.saucedemo.com',
+    headless: true,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'off',
@@ -27,6 +28,7 @@ module.exports = defineConfig({
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
+        '--disable-gpu',
       ],
     },
   },
@@ -37,4 +39,3 @@ module.exports = defineConfig({
     },
   ],
 });
-

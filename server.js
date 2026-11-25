@@ -4,10 +4,12 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const PORT = Number(process.env.PORT) || 3000;
+const HOST = '0.0.0.0';
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const REPORT_DIR = path.join(ROOT_DIR, 'playwright-report');
 const RESULTS_FILE = path.join(ROOT_DIR, 'test-results', 'results.json');
+const BUILD_LOG_FILE = path.join(ROOT_DIR, 'test-results', 'build.log');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -25,12 +27,38 @@ const MIME_TYPES = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
+const SPEC_MAP = {
+  'recorded.spec.js': 'tests/recorded.spec.js',
+  'login.spec.js': 'tests/login.spec.js',
+  'inventory.spec.js': 'tests/inventory.spec.js',
+  'inventoryItem.spec.js': 'tests/inventoryItem.spec.js',
+  'cart.spec.js': 'tests/cart.spec.js',
+  'checkout.spec.js': 'tests/checkout.spec.js',
+  'menu.spec.js': 'tests/menu.spec.js',
+  'tests/recorded.spec.js': 'tests/recorded.spec.js',
+  'tests/login.spec.js': 'tests/login.spec.js',
+  'tests/inventory.spec.js': 'tests/inventory.spec.js',
+  'tests/inventoryItem.spec.js': 'tests/inventoryItem.spec.js',
+  'tests/cart.spec.js': 'tests/cart.spec.js',
+  'tests/checkout.spec.js': 'tests/checkout.spec.js',
+  'tests/menu.spec.js': 'tests/menu.spec.js',
+};
+
+let initialOutput = '';
+if (fs.existsSync(BUILD_LOG_FILE)) {
+  try {
+    initialOutput = fs.readFileSync(BUILD_LOG_FILE, 'utf-8').slice(-20000);
+  } catch {
+    initialOutput = '';
+  }
+}
+
 let runState = {
   isRunning: false,
   startedAt: null,
   finishedAt: null,
   lastExitCode: null,
-  output: '',
+  output: initialOutput,
 };
 
 function collectTestsFromSuite(suite, parentTitles = []) {
@@ -40,7 +68,8 @@ function collectTestsFromSuite(suite, parentTitles = []) {
   if (Array.isArray(suite.specs)) {
     for (const spec of suite.specs) {
       const testEntry = spec.tests && spec.tests[0];
-      const resultEntry = testEntry && testEntry.results && testEntry.results[testEntry.results.length - 1];
+      const resultEntry =
+        testEntry && testEntry.results && testEntry.results[testEntry.results.length - 1];
       const status = resultEntry ? resultEntry.status : spec.ok ? 'passed' : 'failed';
       const durationMs = resultEntry ? resultEntry.duration : 0;
       const errorMessage =
@@ -122,7 +151,7 @@ function readResultsSummary() {
         : allTests.reduce((sum, t) => sum + t.durationMs, 0);
 
     return {
-      hasResults: true,
+      hasResults: allTests.length > 0,
       reportReady,
       runState,
       stats: {
@@ -152,19 +181,10 @@ function triggerTestRun(specFile) {
     return false;
   }
 
-  const allowedSpecs = new Set([
-    'tests/recorded.spec.js',
-    'tests/login.spec.js',
-    'tests/inventory.spec.js',
-    'tests/inventoryItem.spec.js',
-    'tests/cart.spec.js',
-    'tests/checkout.spec.js',
-    'tests/menu.spec.js',
-  ]);
-
+  const normalizedSpec = specFile ? SPEC_MAP[specFile] || null : null;
   const args = ['playwright', 'test', '--workers=1'];
-  if (specFile && allowedSpecs.has(specFile)) {
-    args.push(specFile);
+  if (normalizedSpec) {
+    args.push(normalizedSpec);
   }
 
   runState = {
@@ -184,15 +204,15 @@ function triggerTestRun(specFile) {
 
   child.stdout.on('data', (chunk) => {
     runState.output += chunk.toString();
-    if (runState.output.length > 20000) {
-      runState.output = runState.output.slice(-20000);
+    if (runState.output.length > 25000) {
+      runState.output = runState.output.slice(-25000);
     }
   });
 
   child.stderr.on('data', (chunk) => {
     runState.output += chunk.toString();
-    if (runState.output.length > 20000) {
-      runState.output = runState.output.slice(-20000);
+    if (runState.output.length > 25000) {
+      runState.output = runState.output.slice(-25000);
     }
   });
 
@@ -292,7 +312,13 @@ const server = http.createServer((req, res) => {
   return serveStaticFile(res, PUBLIC_DIR, publicPath);
 });
 
-server.listen(PORT, () => {
-  console.log(`SauceDemo Playwright Dashboard listening on http://localhost:${PORT}`);
-});
+server.listen(PORT, HOST, () => {
+  console.log(`SauceDemo Playwright Dashboard listening on http://${HOST}:${PORT}`);
 
+  // If no test results exist yet (for example, build skipped execution), run once automatically.
+  const initialSummary = readResultsSummary();
+  if (!initialSummary.hasResults && process.env.AUTO_RUN_ON_BOOT !== 'false') {
+    console.log('No test results found on startup. Triggering initial Playwright run...');
+    triggerTestRun(null);
+  }
+});

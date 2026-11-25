@@ -6,8 +6,7 @@ services:
     branch: main
     healthCheckPath: /health
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: CI
         value: "true"
-
+      - key: RENDER
+        value: "true"
