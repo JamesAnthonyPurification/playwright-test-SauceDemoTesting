@@ -9,7 +9,7 @@ const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const REPORT_DIR = path.join(ROOT_DIR, 'playwright-report');
 const RESULTS_FILE = path.join(ROOT_DIR, 'test-results', 'results.json');
-const BUILD_LOG_FILE = path.join(ROOT_DIR, 'test-results', 'build.log');
+const BUILD_LOG_FILE = path.join(ROOT_DIR, 'build.log');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
